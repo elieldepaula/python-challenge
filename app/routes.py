@@ -1,11 +1,7 @@
-#!/usr/bin/python
-from flask import Flask, abort, jsonify, make_response, request
-import docker
+import docker, json
+from flask import abort, jsonify, make_response, request
+from app import app
 
-app = Flask(__name__)
-
-# client = docker.from_env()
-# container = client.containers.run("bfirsh/reticulate-splines", detach=True)
 
 containers = [
 
@@ -19,6 +15,23 @@ def index():
         }
     )
 
+# Return a list of all available images.
+@app.route('/api/images', methods=['GET'])
+def get_images():
+
+    client = docker.from_env()
+
+    image_list = []
+    for image in client.images.list():
+        image_list.append(image.attrs)
+    
+    return jsonify(
+        {
+            "images":image_list
+        }
+    )
+
+# Return alist of all running containers.
 @app.route('/api/list', methods=['GET'])
 def get_containers():
 
@@ -49,9 +62,13 @@ def new_container():
             ), 
             400)
 
+    client = docker.from_env()
+    container = client.containers.run(request.json['image_name'], detach=True)
+
     return  jsonify(
         {
-            "request":request.json
+            "id":container.id,
+            "name":container.name
         }
     )
 
@@ -71,6 +88,18 @@ def stop_container(container_name):
         }
     )
 
+@app.route('/api/stop/all', methods=['GET'])
+def stop_all():
+    
+    client = docker.from_env()
+    for container in client.containers.list():
+        container.stop()
+
+    return jsonify(
+        {
+            "msg":"Stoping all containers."
+        }
+    )
 
 @app.errorhandler(404)
 def not_found(error):
@@ -83,5 +112,3 @@ def not_found(error):
         404
     )
 
-if __name__ == '__main__':
-    app.run(debug=True)
