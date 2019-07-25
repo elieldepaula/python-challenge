@@ -35,7 +35,7 @@ git clone https://github.com/elieldepaula/python-challenge.git
 
 4. Access the project folder.
 ```
-cd python-cgallenge
+cd python-challenge
 ```
 
 5. Run Flask.
