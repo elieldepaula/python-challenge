@@ -3,19 +3,26 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='assets/image/favicon.png') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-        type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}" />
     <title>Docker PY</title>
 </head>
 
 <body>
     <nav class="navbar navbar-dark bg-dark">
-        <div class="container"> <a class="navbar-brand" href="#">
-                <i class="fa d-inline fa-lg fa-circle"></i>
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fa d-inline fa-lg fa-code"></i>
                 <b> Docker PY</b>
-            </a> </div>
+            </a>
+            <div class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" name="image_name" id="image_name" placeholder="Image name"aria-label="Image name">
+                <button class="btn btn-primary my-2 my-sm-0" type="buttom" onclick="createNewContainer()"><i class="fa d-inline fa-plus"></i> Newcontainer</button>
+                </div>
+        </div>
     </nav>
     <div class="py-5">
         <div class="container">
@@ -33,11 +40,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <p class="mb-0">© 2014-2018 Docker PY. All rights reserved</p>
+                    <hr/>
+                    <p class="mb-0">©2019 Docker PY Challenge. Developed by <a href="https://elieldepaula.com.br" target="_blank">Eliel de Paula</a></p>
                 </div>
             </div>
         </div>
     </div>
+    <div class="modal"></div>
     <script src="{{ url_for('static', filename='assets/jquery/js/jquery-3.4.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='assets/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='assets/js/app.js') }}"></script>

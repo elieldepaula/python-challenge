@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="teste"></div>
- <table class="table">
+<div class="alert alert-light" role="alert">
+    <button type="button" onclick="stopAllContainers()" class="btn btn-danger">
+        <iclass="fa d-inline fa-stop-circle"></i> Stop all
+    </button>
+</div>
+<table class="table">
     <thead>
         <tr>
             <th scope="col">#</th>
-            <th scope="col">First</th>
+            <th scope="col">Name</th>
+            <th scope="col">Status</th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody id="tableRows">

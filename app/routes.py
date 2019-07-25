@@ -1,8 +1,12 @@
+
+# Python dev challenge!
+# Created by Eliel de Paula <dev@elieldepaula.com.br>
+
 import docker, json
 from flask import abort, jsonify, make_response, request, render_template
 from app import app
 
-client = docker.from_env() # docker.DockerClient(base_url='unix://var/run/docker.sock')
+client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
 # Render the website template.
 @app.route('/')
@@ -13,26 +17,20 @@ def index():
 # Return a list of all available images.
 @app.route('/api/images', methods=['GET'])
 def get_images():
-
-    # client = docker.from_env()
-
     image_list = []
     for image in client.images.list():
         image_list.append(image.attrs)
-    
     return jsonify(
         {
             "images":image_list
         }
     )
 
-# Return a list of containers. [ok]
+# Return a list of containers.
 @app.route('/api/list', methods=['GET'])
 def get_containers():
-
     out_containers = []
     temp_containers = []
-
     for container in client.containers.list(all=True):
         temp_container = {
             "id":container.id,
@@ -40,7 +38,6 @@ def get_containers():
             "status":container.status
         }
         out_containers.append(temp_container)
-
     return  jsonify(
         {
             "containers":out_containers
@@ -58,60 +55,39 @@ def new_container():
                 }
             ), 
             400)
-
-    # client = docker.from_env()
-    container = client.containers.run(request.json['image_name'], detach=True)
-
-    return  jsonify(
-        {
-            "id":container.id,
-            "name":container.name
-        }
-    )
-
-@app.route('/api/start', methods=['POST'])
-def start_container():
-    if not request.json:
-        return make_response(
-            jsonify(
-                {
-                    "error":"No request!"
-                }
-            ), 
-            400)
-
-    # temp_container = client.containers.get(request.json['name'])
-    # if temp_container:
-    #     container = client.containers.run(request.json['name'])
-    #     return jsonify(
-    #         {
-    #             "Name":"Starting " + request.json['name']
-    #         }
-    #     )
-    # else:
-    #     container = client.containers.run(request.json['name'])
-    #     return jsonify(
-    #         {
-    #             "error":"Error starting container"
-    #         }
-    #     )
-
     temp_out = []
     try:
-        container = client.containers.run(request.json['name'])
+        container = client.containers.run(request.json['image_name'], detach=True)
+        container.start()
         temp_out = [{
-            "name":"Starting " + request.json['name']
+            "id":container.id,
+            "name":container.name
         }]
-        
+    except:
+        temp_out = [{
+            "name":"Error creating container "
+        }]
+    else:
+        return jsonify(temp_out)
+
+# Start a single container.
+@app.route('/api/<string:container_name>/start', methods=['GET'])
+def start_container(container_name):
+    temp_out = []
+    try:
+        temp_container = client.containers.get(container_name)
+        temp_container.start()
+        temp_out = [{
+            "name":"Starting " + container_name
+        }]
     except Exception as e:
-        # print str(e) # for error in e.
         temp_out = [{
             "name":"Error starting container "
         }]
     else:
         return jsonify(temp_out)
     
-
+# Stop a single running container.
 @app.route('/api/<string:container_name>/stop', methods=['GET'])
 def stop_container(container_name):
     temp_container = client.containers.get(container_name)
@@ -122,24 +98,23 @@ def stop_container(container_name):
         }
     )
 
+# Stop all running containers.
 @app.route('/api/stop/all', methods=['GET'])
 def stop_all():
-    
-    # client = docker.from_env()
     for container in client.containers.list():
         container.stop()
-
     return jsonify(
         {
             "msg":"Stoping all containers."
         }
     )
 
-# Return client info [ok]
+# Return docker client info.
 @app.route('/api/info', methods=['GET'])
 def get_info():
     return jsonify(client.info())
 
+# Handle routes error.
 @app.errorhandler(404)
 def not_found(error):
     return make_response(
